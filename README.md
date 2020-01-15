@@ -15,22 +15,38 @@ terraform graph # dependency graph can convert to image using: http://dreampuf.g
 terraform output # list all outputs without applying any changes
 ```
 
+## General Concepts:
+**VPC** ( Virtual Private Cloud) is an isolated area of your AWS account that has its own virtual network and IP address space. Just about every AWS resource deploys into a VPC. If you don’t explicitly specify a VPC, the resource will be deployed into the Default VPC.
+
+A VPC is partitioned into one or more **subnets**, each with its own IP addresses. The subnets in the Default VPC are all public subnets. Production systems should deploy all servers, and certainly all data stores, in private subnets, which have IP addresses that can be accessed only from within the VPC and not from the public internet.
+
+Load balancer to distribute traffic across your servers, Amazon’s Elastic Load Balancer (ELB) service offers three different types of load balancers:
+* Application Load Balancer (ALB): load balancing of HTTP and HTTPS traffic
+* Network Load Balancer (NLB): load balancing of TCP, UDP, and TLS traffic
+* Classic Load Balancer (CLB): can handle HTTP, HTTPS, TCP, and TLS traffic, but with far fewer features than either the ALB or NLB
+
 ## Terraform common components:
-**provider** "aws" {
+```
+provider "aws" {
   region = "us-west-1"
 }
-
+```
 Use terraform doc to see config setting for each resource, e.g: https://www.terraform.io/docs/providers/aws/r/eks_cluster.html
-
-**resource** "< PROVIDER>_< TYPE>" "< NAME>" { <br>
-  [CONFIG ...]<br>
+```
+resource "< PROVIDER>_< TYPE>" "< NAME>" { 
+  [CONFIG ...]
 }
+```
+reference: 
+```
+< PROVIDER>_< TYPE>.< NAME>.< ATTRIBUTE>
+```
 
-**reference**: < PROVIDER>_< TYPE>.< NAME>.< ATTRIBUTE>
-
-**variable** "NAME" {<br>
-  [CONFIG ...] # description, default and type<br>
+```
+variable "NAME" {
+  [CONFIG ...] # description, default and type
 }
+```
 
 Ways to provide a value for the variable:
 * passing it in at the command line (using the -var option)
@@ -58,19 +74,40 @@ variable "object_example" {
 }
 ```
 variable reference:
-
+```
 var.<VARIABLE_NAME>
-
+```
 To use a reference inside of a string literal: "${...}"
 
 **output** variables:
-
-output "< NAME>" {<br>
-  value = < VALUE><br>
-  [CONFIG ...] # description and sensitive <br>
+```
+output "< NAME>" {
+  value = < VALUE>
+  [CONFIG ...] # description and sensitive 
 }
+```
+The syntax for using a data source is very similar to the syntax of a resource:
+```
+data "<PROVIDER>_<TYPE>" "<NAME>" {
+  [CONFIG ...]
+}
+```
+To get the data out of a data source:
+```
+data.<PROVIDER>_<TYPE>.<NAME>.<ATTRIBUTE>
+```
 
 ## Steps for different infrastraucture:
-By default, AWS does not allow any incoming or outgoing traffic from an EC2 Instance. To allow the EC2 Instance to receive traffic need to create a **security group**. And tell the EC2 Instance to actually use it by passing the ID of the security group into the vpc_security_group_ids argument of the aws_instance resource. **Sample**: [one-webserver](one-webserver/main.tf) 
+Allow EC2 Instance to receive traffic need to - [one-webserver](one-webserver/main.tf) :
+1. create a **security group**. 
+2. tell the EC2 Instance to use it by passing the ID of the security group into the vpc_security_group_ids argument.
 
-The first step in creating an **ASG** (Auto Scaling Group) is to create a launch configuration, which specifies how to configure each EC2 Instance in the ASG.
+**ASG** (Auto Scaling Group) - [webserver-cluster](webserver-cluster/main.tf) :
+1. launch configuration: specifies how to configure each EC2 Instance in the ASG.
+2. subnet_ids: specifies to ASG into which VPC subnets the EC2 Instances should be deployed. Use data sources to get the list of subnets in your AWS account.
+3. deploying a load balancer (steps provided below)
+
+**ALB** (Application Load Balancer):
+1. create the ALB itself using the aws_lb resource
+2. Listener: Listens on a specific port (e.g., 80) and protocol (e.g., HTTP)
+3. security group to allow incoming requests
