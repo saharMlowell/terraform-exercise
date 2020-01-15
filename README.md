@@ -102,7 +102,7 @@ Allow EC2 Instance to receive traffic need to - [one-webserver](one-webserver/ma
 1. create a **security group**. 
 2. tell the EC2 Instance to use it by passing the ID of the security group into the vpc_security_group_ids argument.
 
-**ASG** (Auto Scaling Group) - [webserver-cluster](webserver-cluster/main.tf) :
+**ASG** (Auto Scaling Group) - [alb-webserver-cluster](alb-webserver-cluster/main.tf) :
 1. launch configuration: specifies how to configure each EC2 Instance in the ASG.
 2. subnet_ids: specifies to ASG into which VPC subnets the EC2 Instances should be deployed. Use data sources to get the list of subnets in your AWS account.
 3. deploying a load balancer (steps provided below)
@@ -110,4 +110,6 @@ Allow EC2 Instance to receive traffic need to - [one-webserver](one-webserver/ma
 **ALB** (Application Load Balancer):
 1. create the ALB itself using the aws_lb resource
 2. Listener: Listens on a specific port (e.g., 80) and protocol (e.g., HTTP)
-3. security group to allow incoming requests
+3. security group to allow incoming requests. Tell the aws_lb resource to use this security group via the security_groups argument
+4. Target groups: One or more servers that receive requests from the load balancer. The target group also performs health checks on these servers and only sends requests to healthy nodes.
+5. Listener rule: sends requests that match specific paths or hostnames to specific target groups
