@@ -39,7 +39,8 @@ Ways to provide a value for the variable:
 * If no value is passed in, the variable will fall back to default value. 
 * If there is no default value, Terraform will interactively prompt the user for one.
 Type: string, number, bool, list, map, set, object, tuple, and any. If not specifying a type, Terraform assumes any.
-```variable "object_example" {
+```
+variable "object_example" {
   description = "An example of a structural type in Terraform"
   type        = object({
     name    = string
@@ -70,6 +71,6 @@ output "< NAME>" {<br>
 }
 
 ## Steps for different infrastraucture:
-By default, AWS does not allow any incoming or outgoing traffic from an EC2 Instance. To allow the EC2 Instance to receive traffic need to create a security group. And tell the EC2 Instance to actually use it by passing the ID of the security group into the vpc_security_group_ids argument of the aws_instance resource. 
+By default, AWS does not allow any incoming or outgoing traffic from an EC2 Instance. To allow the EC2 Instance to receive traffic need to create a **security group**. And tell the EC2 Instance to actually use it by passing the ID of the security group into the vpc_security_group_ids argument of the aws_instance resource. 
 
 The first step in creating an **ASG** (Auto Scaling Group) is to create a launch configuration, which specifies how to configure each EC2 Instance in the ASG.
