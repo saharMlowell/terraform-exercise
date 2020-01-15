@@ -71,6 +71,6 @@ output "< NAME>" {<br>
 }
 
 ## Steps for different infrastraucture:
-By default, AWS does not allow any incoming or outgoing traffic from an EC2 Instance. To allow the EC2 Instance to receive traffic need to create a **security group**. And tell the EC2 Instance to actually use it by passing the ID of the security group into the vpc_security_group_ids argument of the aws_instance resource. 
+By default, AWS does not allow any incoming or outgoing traffic from an EC2 Instance. To allow the EC2 Instance to receive traffic need to create a **security group**. And tell the EC2 Instance to actually use it by passing the ID of the security group into the vpc_security_group_ids argument of the aws_instance resource. **Sample**: [one-webserver](one-webserver/main.tf) 
 
 The first step in creating an **ASG** (Auto Scaling Group) is to create a launch configuration, which specifies how to configure each EC2 Instance in the ASG.
